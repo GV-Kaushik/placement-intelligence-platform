@@ -9,7 +9,8 @@ import {
   Briefcase, 
   MessageSquare, 
   ShieldCheck,
-  Bot
+  Bot,
+  Compass
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -114,7 +115,7 @@ export default function Dashboard() {
         {/* 3. Quick Action Links */}
         <h2 className="text-xl font-bold text-white mb-4">Quick Actions</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           
           {/* Action 1: Explore Companies */}
           <Link 
@@ -155,6 +156,20 @@ export default function Dashboard() {
             <h3 className="text-lg font-bold text-slate-100 mb-2">AI Mock Interview</h3>
             <p className="text-sm text-slate-400">
               Practice behavioral and technical interview questions with our adaptive AI agent.
+            </p>
+          </Link>
+
+          {/* Action 4: AI Study Roadmap */}
+          <Link 
+            to="/roadmaps"
+            className="bg-slate-900 border border-slate-800 p-6 rounded-lg hover:bg-slate-800 transition-colors"
+          >
+            <div className="p-3 bg-slate-800 rounded-lg w-max mb-4">
+              <Compass className="h-6 w-6 text-indigo-400" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-100 mb-2">AI Study Roadmap</h3>
+            <p className="text-sm text-slate-400">
+              Generate a week-by-week timeline tailored for your target company prep.
             </p>
           </Link>
 

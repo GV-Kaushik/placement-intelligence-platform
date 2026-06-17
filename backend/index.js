@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoutes.js';
 import companyRoutes from './routes/companyRoutes.js';
 import experienceRoutes from './routes/experienceRoutes.js';
 import mockRoutes from './routes/mockRoutes.js';
+import roadmapRoutes from './routes/roadmapRoutes.js';
 import pool from './config/db.js';
 
 // Load environment variables
@@ -46,6 +47,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/experiences', experienceRoutes);
 app.use('/api/mock-interviews', mockRoutes);
+app.use('/api/roadmaps', roadmapRoutes);
 
 // Catch-all 404 Route
 app.use('*', (req, res) => {

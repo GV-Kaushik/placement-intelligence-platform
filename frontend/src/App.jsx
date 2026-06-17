@@ -10,6 +10,7 @@ import Experiences from './pages/Experiences';
 import ExperienceDetail from './pages/ExperienceDetail';
 import SubmitExperience from './pages/SubmitExperience';
 import MockInterview from './pages/MockInterview';
+import Roadmap from './pages/Roadmap';
 import { useAuth } from './context/AuthContext';
 
 function App() {
@@ -68,6 +69,10 @@ function App() {
         <Route 
           path="/mock-interview" 
           element={user ? <MockInterview /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/roadmaps" 
+          element={user ? <Roadmap /> : <Navigate to="/login" />} 
         />
         {/* Catch-all Redirect */}
         <Route path="*" element={<Navigate to="/" />} />

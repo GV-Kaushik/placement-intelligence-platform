@@ -613,13 +613,16 @@
 #   - Start Mock Interview (POST /api/mock-interviews)
 #   - Send Chat Message & Evaluate (POST /api/mock-interviews/:id/message)
 #   - Retrieve Mock Interview (GET /api/mock-interviews/:id)
+#   - Generate Study Roadmap (POST /api/roadmaps)
+#   - Get Roadmaps History (GET /api/roadmaps)
+#   - Get Specific Roadmap (GET /api/roadmaps/:id)
+#   - Delete Roadmap (DELETE /api/roadmaps/:id)
 #   - Auth Middleware (protect, protectOptional, adminOnly)
 #   - Database Schema (16 tables)
 #   - Seed Data
-#   - Frontend: LandingPage, Login, Signup, Dashboard, Companies, CompanyDetail, Experiences, ExperienceDetail, SubmitExperience, MockInterview, AuthContext, api.js, App.jsx routing
+#   - Frontend: LandingPage, Login, Signup, Dashboard, Companies, CompanyDetail, Experiences, ExperienceDetail, SubmitExperience, MockInterview, Roadmap, AuthContext, api.js, App.jsx routing
 #
 # 🔲 PENDING (Frontend pages to build):
-#   - Roadmap.jsx (AI generated roadmap display)
 #   - ResumeEvaluator.jsx (PDF upload + AI analysis)
 #   - ApplicationTracker.jsx (Kanban/table of job applications)
 #

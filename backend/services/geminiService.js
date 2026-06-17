@@ -219,3 +219,85 @@ Ensure your response is valid JSON. Set response format config if possible. Do n
     };
   }
 }
+
+/**
+ * Generates a week-by-week study roadmap for a target company and time duration
+ */
+export async function generateAIStudyRoadmap(company, weeks) {
+  if (isMockMode) {
+    // Simulated mock roadmap for offline testing
+    await new Promise(function(resolve) { setTimeout(resolve, 1000); });
+    const mockRoadmap = [];
+    for (let w = 1; w <= weeks; w++) {
+      mockRoadmap.push({
+        week: w,
+        title: `Week ${w}: Core Placement Prep`,
+        topics: [
+          {
+            name: `DSA - Topic ${w}`,
+            description: "Practice arrays, sorting, searching, and key algorithms.",
+            resource: "LeetCode top interview cards"
+          },
+          {
+            name: `CS Theory - Topic ${w}`,
+            description: "Revise concepts like DBMS normalization, OS thread sync, and socket basics.",
+            resource: "GeeksforGeeks guidelines"
+          }
+        ],
+        milestone: `Complete at least 5 coding exercises and 1 mock quiz by the end of week ${w}.`
+      });
+    }
+    return mockRoadmap;
+  }
+
+  try {
+    const prompt = `You are a career mentor. Generate a structured placement preparation roadmap for target company: ${company}.
+The student has exactly ${weeks} weeks left.
+Provide a week-by-week checklist containing topics to study, short descriptions, helpful resources/references, and a weekly milestone goal.
+
+You MUST respond with a valid JSON array matching this structure:
+[
+  {
+    "week": 1,
+    "title": "Week Title",
+    "topics": [
+      {
+        "name": "Topic Name",
+        "description": "Topic details...",
+        "resource": "Recommended article/platform..."
+      }
+    ],
+    "milestone": "Weekly goal to complete..."
+  }
+]
+
+Ensure your response is valid JSON. Do not include markdown formatting or extra conversational text.`;
+
+    const evalModel = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      generationConfig: { responseMimeType: "application/json" }
+    });
+
+    const response = await evalModel.generateContent(prompt);
+    const resultText = response.response.text();
+    return JSON.parse(resultText);
+  } catch (error) {
+    console.error('Error generating AI study roadmap:', error.message);
+    const fallbackRoadmap = [];
+    for (let w = 1; w <= weeks; w++) {
+      fallbackRoadmap.push({
+        week: w,
+        title: `Week ${w}: Study Topics`,
+        topics: [
+          {
+            name: "Preparation & Coding",
+            description: "Practice DSA and review interview topics.",
+            resource: "GeeksforGeeks and LeetCode"
+          }
+        ],
+        milestone: "Keep practicing technical questions."
+      });
+    }
+    return fallbackRoadmap;
+  }
+}
