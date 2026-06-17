@@ -5,22 +5,23 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'placementor_ai_super_secret_jwt_key_2026';
 
-export const protect = async (req, res, next) => {
+// Middleware to verify JWT token and protect routes
+export async function protect(req, res, next) {
   let token;
 
-  // Check if header contains Bearer token
+  // Check for JWT token in Authorization header
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
     try {
-      // Get token from header
+      // Extract token value
       token = req.headers.authorization.split(' ')[1];
 
-      // Verify token
+      // Decode and verify
       const decoded = jwt.verify(token, JWT_SECRET);
 
-      // Add user info to request object
+      // Attach user information to request
       req.user = {
         id: decoded.id,
         email: decoded.email,
@@ -30,10 +31,10 @@ export const protect = async (req, res, next) => {
 
       next();
     } catch (error) {
-      console.error('Authentication token verification failed:', error.message);
+      console.error('Token verification failed:', error.message);
       return res.status(401).json({
         success: false,
-        message: 'Not authorized, token failed',
+        message: 'Not authorized, token validation failed',
       });
     }
   }
@@ -44,20 +45,22 @@ export const protect = async (req, res, next) => {
       message: 'Not authorized, no token provided',
     });
   }
-};
+}
 
-export const adminOnly = (req, res, next) => {
+// Middleware to restrict access to admin users only
+export function adminOnly(req, res, next) {
   if (req.user && req.user.role === 'admin') {
     next();
   } else {
     return res.status(403).json({
       success: false,
-      message: 'Access denied, administrator privileges required',
+      message: 'Access denied, admin role required',
     });
   }
-};
+}
 
-export const protectOptional = async (req, res, next) => {
+// Middleware to optionally populate req.user if a token exists
+export async function protectOptional(req, res, next) {
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
@@ -65,6 +68,7 @@ export const protectOptional = async (req, res, next) => {
     try {
       const token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, JWT_SECRET);
+      
       req.user = {
         id: decoded.id,
         email: decoded.email,
@@ -72,10 +76,8 @@ export const protectOptional = async (req, res, next) => {
         role: decoded.role,
       };
     } catch (error) {
-      // Just log and continue, do not block the request
-      console.log('Optional authentication token was invalid (ignored)');
+      console.log('Optional token was invalid (ignored)');
     }
   }
   next();
-};
-
+}

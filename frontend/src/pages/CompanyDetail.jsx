@@ -36,7 +36,7 @@ export default function CompanyDetail() {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 flex justify-center items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-opacity-50"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-indigo-600 border-opacity-50"></div>
       </div>
     );
   }
@@ -46,7 +46,7 @@ export default function CompanyDetail() {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center">
         <h2 className="text-2xl font-bold text-red-400 mb-4">Company Not Found</h2>
-        <Link to="/companies" className="text-blue-400 hover:underline flex items-center gap-2">
+        <Link to="/companies" className="text-indigo-400 hover:text-indigo-350 flex items-center gap-2">
           <ArrowLeft className="h-4 w-4" /> Back to Companies
         </Link>
       </div>
@@ -62,12 +62,12 @@ export default function CompanyDetail() {
         <div key={i}>
           <div className="flex justify-between text-sm font-medium mb-2">
             <span className="text-slate-200">{topicData.topic}</span>
-            <span className="text-blue-400">{topicData.percentage}%</span>
+            <span className="text-indigo-400">{topicData.percentage}%</span>
           </div>
           {/* Visual Progress Bar */}
-          <div className="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-slate-800 rounded-lg h-3 overflow-hidden">
             <div 
-              className="bg-gradient-to-r from-blue-500 to-indigo-500 h-3 rounded-full" 
+              className="bg-indigo-600 h-3 rounded-lg" 
               style={{ width: `${topicData.percentage}%` }}
             ></div>
           </div>
@@ -81,14 +81,14 @@ export default function CompanyDetail() {
       <div className="max-w-5xl mx-auto">
         
         {/* Back Button */}
-        <Link to="/companies" className="inline-flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors mb-8">
+        <Link to="/companies" className="inline-flex items-center gap-2 text-slate-400 hover:text-indigo-400 transition-colors mb-8">
           <ArrowLeft className="h-4 w-4" />
           <span>Back to all companies</span>
         </Link>
 
         {/* --- HEADER: Company Info --- */}
-        <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-3xl p-8 mb-8 flex items-start gap-6">
-          <div className="h-20 w-20 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-2xl flex items-center justify-center text-blue-400 shrink-0">
+        <div className="bg-slate-900 border border-slate-800 rounded-lg p-8 mb-8 flex items-start gap-6">
+          <div className="h-20 w-20 bg-slate-800 rounded-lg flex items-center justify-center text-indigo-400 shrink-0 border border-slate-700">
             <Building2 className="h-10 w-10" />
           </div>
           <div>
@@ -101,13 +101,13 @@ export default function CompanyDetail() {
 
         {/* --- ANALYTICS GRID --- */}
         <h2 className="text-2xl font-bold text-slate-100 mb-6 flex items-center gap-2">
-          <TrendingUp className="h-6 w-6 text-blue-400" /> Hiring Analytics
+          <TrendingUp className="h-6 w-6 text-indigo-400" /> Hiring Analytics
         </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           
           {/* Stat 1: Success Rate */}
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-lg">
             <div className="flex items-center gap-3 mb-2">
               <TrendingUp className="h-5 w-5 text-emerald-400" />
               <h3 className="text-slate-400 font-medium">Selection Rate</h3>
@@ -117,7 +117,7 @@ export default function CompanyDetail() {
           </div>
 
           {/* Stat 2: Avg Rounds */}
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-lg">
             <div className="flex items-center gap-3 mb-2">
               <Layers className="h-5 w-5 text-purple-400" />
               <h3 className="text-slate-400 font-medium">Average Rounds</h3>
@@ -127,9 +127,9 @@ export default function CompanyDetail() {
           </div>
 
           {/* Stat 3: Total Experiences */}
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-lg">
             <div className="flex items-center gap-3 mb-2">
-              <Users className="h-5 w-5 text-blue-400" />
+              <Users className="h-5 w-5 text-indigo-400" />
               <h3 className="text-slate-400 font-medium">Shared Experiences</h3>
             </div>
             <p className="text-4xl font-bold text-white mb-1">{analytics.totalExperiences}</p>
@@ -139,7 +139,7 @@ export default function CompanyDetail() {
         </div>
 
         {/* --- MOST ASKED TOPICS --- */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 mb-8">
+        <div className="bg-slate-900 border border-slate-800 rounded-lg p-8 mb-8">
           <h2 className="text-2xl font-bold text-slate-100 mb-6 flex items-center gap-2">
             <BookOpen className="h-6 w-6 text-indigo-400" /> Most Asked Topics
           </h2>

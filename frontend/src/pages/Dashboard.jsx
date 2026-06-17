@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -8,14 +8,16 @@ import {
   BookOpen, 
   Briefcase, 
   MessageSquare, 
-  ShieldCheck 
+  ShieldCheck,
+  Bot
 } from 'lucide-react';
 
 export default function Dashboard() {
-  const {user,logout,updateProfile}=useAuth();
-  const navigate =useNavigate();
-  function handleLogout(){
-     logout();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  
+  function handleLogout() {
+    logout();
     navigate('/');
   }
 
@@ -23,17 +25,18 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-950 text-white flex flex-col">
       
       {/* --- NAVBAR --- */}
-      <nav className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+      <nav className="border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             
-            {/* Left side: Logo */}
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-8 w-8 text-blue-500" />
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                PlaceMentor
+            {/* Left side: Clickable Logo */}
+            <Link to="/" className="flex items-center gap-2">
+              <ShieldCheck className="h-8 w-8 text-indigo-500" />
+              <span className="text-xl font-bold text-white">
+                PlaceMentor AI
               </span>
-            </div>
+            </Link>
+
             {/* Right side: User info & Logout */}
             <div className="flex items-center gap-6">
               <div className="text-sm">
@@ -52,14 +55,14 @@ export default function Dashboard() {
           </div>
         </div>
       </nav>
-      {/* --- MAIN CONTENT WILL GO HERE IN PART 2 --- */}
-            {/* --- MAIN CONTENT --- */}
+
+      {/* --- MAIN CONTENT --- */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         
         {/* 1. Welcome Banner */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">
-            Welcome back, <span className="text-blue-400">{user?.name}</span> 👋
+            Welcome back, <span className="text-indigo-400">{user?.name}</span> 👋
           </h1>
           <p className="text-slate-400">
             Here's a summary of your placement preparation progress.
@@ -70,9 +73,9 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           
           {/* Card 1: Target Company */}
-          <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl flex items-center gap-4">
-            <div className="p-3 bg-blue-500/10 rounded-xl">
-              <Target className="h-8 w-8 text-blue-400" />
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-lg flex items-center gap-4">
+            <div className="p-3 bg-slate-800 rounded-lg">
+              <Target className="h-8 w-8 text-indigo-400" />
             </div>
             <div>
               <p className="text-sm text-slate-400 font-medium">Target Company</p>
@@ -83,8 +86,8 @@ export default function Dashboard() {
           </div>
 
           {/* Card 2: Readiness Score */}
-          <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl flex items-center gap-4">
-            <div className="p-3 bg-emerald-500/10 rounded-xl">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-lg flex items-center gap-4">
+            <div className="p-3 bg-slate-800 rounded-lg">
               <TrendingUp className="h-8 w-8 text-emerald-400" />
             </div>
             <div>
@@ -96,8 +99,8 @@ export default function Dashboard() {
           </div>
 
           {/* Card 3: Active Applications */}
-          <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl flex items-center gap-4">
-            <div className="p-3 bg-purple-500/10 rounded-xl">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-lg flex items-center gap-4">
+            <div className="p-3 bg-slate-800 rounded-lg">
               <Briefcase className="h-8 w-8 text-purple-400" />
             </div>
             <div>
@@ -107,7 +110,8 @@ export default function Dashboard() {
           </div>
 
         </div>
-                {/* 3. Quick Action Links */}
+
+        {/* 3. Quick Action Links */}
         <h2 className="text-xl font-bold text-white mb-4">Quick Actions</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -115,10 +119,10 @@ export default function Dashboard() {
           {/* Action 1: Explore Companies */}
           <Link 
             to="/companies"
-            className="group bg-slate-900 border border-slate-800 p-6 rounded-2xl hover:border-blue-500/50 hover:bg-slate-800/50 hover:-translate-y-1 transition-all duration-300"
+            className="bg-slate-900 border border-slate-800 p-6 rounded-lg hover:bg-slate-800 transition-colors"
           >
-            <div className="p-3 bg-blue-500/10 rounded-xl w-max mb-4 group-hover:bg-blue-500/20 transition-colors">
-              <BookOpen className="h-6 w-6 text-blue-400" />
+            <div className="p-3 bg-slate-800 rounded-lg w-max mb-4">
+              <BookOpen className="h-6 w-6 text-indigo-400" />
             </div>
             <h3 className="text-lg font-bold text-slate-100 mb-2">Explore Companies</h3>
             <p className="text-sm text-slate-400">
@@ -129,9 +133,9 @@ export default function Dashboard() {
           {/* Action 2: Placement Experiences */}
           <Link 
             to="/experiences"
-            className="group bg-slate-900 border border-slate-800 p-6 rounded-2xl hover:border-indigo-500/50 hover:bg-slate-800/50 hover:-translate-y-1 transition-all duration-300"
+            className="bg-slate-900 border border-slate-800 p-6 rounded-lg hover:bg-slate-800 transition-colors"
           >
-            <div className="p-3 bg-indigo-500/10 rounded-xl w-max mb-4 group-hover:bg-indigo-500/20 transition-colors">
+            <div className="p-3 bg-slate-800 rounded-lg w-max mb-4">
               <MessageSquare className="h-6 w-6 text-indigo-400" />
             </div>
             <h3 className="text-lg font-bold text-slate-100 mb-2">Read Experiences</h3>
@@ -140,24 +144,23 @@ export default function Dashboard() {
             </p>
           </Link>
 
-          {/* Action 3: Settings/Profile */}
-          {/* <Link 
-            to="/settings"
-            className="group bg-slate-900 border border-slate-800 p-6 rounded-2xl hover:border-slate-500/50 hover:bg-slate-800/50 hover:-translate-y-1 transition-all duration-300"
+          {/* Action 3: AI Mock Interview */}
+          <Link 
+            to="/mock-interview"
+            className="bg-slate-900 border border-slate-800 p-6 rounded-lg hover:bg-slate-800 transition-colors"
           >
-            <div className="p-3 bg-slate-800 rounded-xl w-max mb-4 group-hover:bg-slate-700 transition-colors">
-              <Settings className="h-6 w-6 text-slate-400" />
+            <div className="p-3 bg-slate-800 rounded-lg w-max mb-4">
+              <Bot className="h-6 w-6 text-indigo-400" />
             </div>
-            <h3 className="text-lg font-bold text-slate-100 mb-2">Update Profile</h3>
+            <h3 className="text-lg font-bold text-slate-100 mb-2">AI Mock Interview</h3>
             <p className="text-sm text-slate-400">
-              Set your target company to start getting AI-powered recommendations.
+              Practice behavioral and technical interview questions with our adaptive AI agent.
             </p>
-          </Link> */}
+          </Link>
 
         </div>
 
       </main>
-      
     </div>
   );
 }

@@ -50,20 +50,20 @@ export default function Experiences() {
       <Link 
         to={`/experiences/${exp.id}`} 
         key={exp.id}
-        className="block bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:bg-slate-800/80 hover:border-indigo-500/50 hover:-translate-y-1 transition-all duration-300 group"
+        className="block bg-slate-900 border border-slate-800 rounded-lg p-6 hover:bg-slate-800 transition-colors group"
       >
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           
           {/* Left Side: Company & Author Info */}
           <div className="flex items-start gap-4">
-            <div className="h-14 w-14 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-2xl flex items-center justify-center text-indigo-400 shrink-0">
+            <div className="h-14 w-14 bg-slate-800 rounded-lg flex items-center justify-center text-indigo-400 shrink-0 border border-slate-700">
               <Building2 className="h-7 w-7" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
                 {exp.company_name}
                 {/* Result Badge */}
-                <span className={`text-xs px-2 py-1 rounded-full border ${
+                <span className={`text-xs px-2 py-1 rounded-lg border ${
                   exp.result === 'Selected' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
                   exp.result === 'Rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
                   'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
@@ -83,11 +83,11 @@ export default function Experiences() {
 
           {/* Right Side: Upvotes & Arrow */}
           <div className="flex items-center gap-6 self-end md:self-center">
-            <div className="flex items-center gap-2 bg-slate-950 px-4 py-2 rounded-xl border border-slate-800">
+            <div className="flex items-center gap-2 bg-slate-950 px-4 py-2 rounded-lg border border-slate-800">
               <ThumbsUp className={`h-4 w-4 ${exp.has_upvoted ? 'text-indigo-400' : 'text-slate-500'}`} />
               <span className="font-semibold text-slate-300">{exp.upvotes}</span>
             </div>
-            <div className="h-10 w-10 bg-slate-800 rounded-full flex items-center justify-center group-hover:bg-indigo-600 transition-colors">
+            <div className="h-10 w-10 bg-slate-800 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 transition-colors">
               <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-white" />
             </div>
           </div>
@@ -103,7 +103,7 @@ export default function Experiences() {
         
         {/* --- PAGE HEADER & SEARCH BAR --- */}
         <div className="mb-10 text-center">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 mb-4">
+          <h1 className="text-4xl font-extrabold text-white mb-4">
             Placement Experiences
           </h1>
           <p className="text-slate-400 text-lg mb-8">
@@ -111,17 +111,17 @@ export default function Experiences() {
           </p>
 
           {/* Search Form */}
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative">
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative flex gap-2">
             <input 
               type="text" 
-              placeholder="Search for companies, roles, or topics (e.g. 'Google' or 'Binary Trees')"
+              placeholder="Search for companies, roles, or topics..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-full py-4 pl-6 pr-14 text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+              onChange={function(e) { setSearchQuery(e.target.value); }}
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg py-4 pl-6 pr-14 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
             />
             <button 
               type="submit"
-              className="absolute right-2 top-2 bottom-2 bg-indigo-600 hover:bg-indigo-500 rounded-full p-3 transition-colors flex items-center justify-center"
+              className="absolute right-2 top-2 bottom-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg p-3 transition-colors flex items-center justify-center"
             >
               <Search className="h-5 w-5 text-white" />
             </button>
@@ -131,10 +131,10 @@ export default function Experiences() {
         {/* --- EXPERIENCES FEED --- */}
         {loading ? (
           <div className="flex justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-indigo-500 border-opacity-50"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-indigo-550 border-opacity-50"></div>
           </div>
         ) : experiences.length === 0 ? (
-          <div className="text-center py-20 text-slate-500 bg-slate-900/50 rounded-3xl border border-slate-800">
+          <div className="text-center py-20 text-slate-500 bg-slate-900 rounded-lg border border-slate-800">
             <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <h2 className="text-xl font-bold">No experiences found</h2>
             <p>Try searching for a different keyword or topic.</p>

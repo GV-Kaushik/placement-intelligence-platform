@@ -383,6 +383,88 @@ WHERE id = $2;
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# FEATURE 11: AI MOCK INTERVIEWS & SCORECARD PIPELINE
+# Endpoint: POST /api/mock-interviews
+#           POST /api/mock-interviews/:id/message
+#           GET /api/mock-interviews/:id
+# File: backend/controllers/mockController.js
+# ══════════════════════════════════════════════════════════════════════════════
+
+-- STEP 1: Create a new mock interview session row
+INSERT INTO mock_interviews (user_id, company_name, role, difficulty, chat_history, status)
+VALUES ($1, $2, $3, $4, '[]'::jsonb, 'in_progress')
+RETURNING *;
+-- $1 = User UUID
+-- $2 = 'Google'
+-- $3 = 'Software Engineer'
+-- $4 = 'Medium'
+
+-- STEP 2: Update session with initial question in history
+UPDATE mock_interviews
+SET chat_history = $1::jsonb
+WHERE id = $2 AND user_id = $3
+RETURNING *;
+-- $1 = '[{"role": "model", "text": "Hi! Let us start..."}]' (JSON string)
+-- $2 = session UUID
+-- $3 = User UUID
+
+-- STEP 3: Fetch current session details
+SELECT * FROM mock_interviews
+WHERE id = $1 AND user_id = $2;
+-- $1 = session UUID
+-- $2 = User UUID
+
+-- STEP 4: Save updated history with candidate answer
+UPDATE mock_interviews
+SET chat_history = $1::jsonb
+WHERE id = $2 AND user_id = $3
+RETURNING *;
+-- $1 = Updated history array including user answer and next question
+
+-- STEP 5: Save completed history (user's 5th response)
+UPDATE mock_interviews
+SET chat_history = $1::jsonb
+WHERE id = $2 AND user_id = $3;
+-- This stores the complete transcript before we calculate scores
+
+-- STEP 6: Save scorecard feedback details
+INSERT INTO interview_feedbacks (
+  mock_interview_id, dsa_score, os_score, dbms_score, cn_score, overall_score, feedback_details, weak_areas
+)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb)
+RETURNING *;
+-- $1 = session UUID
+-- $2 = 80 (DSA score)
+-- $3 = 70 (OS score)
+-- $4 = 75 (DBMS score)
+-- $5 = 60 (CN score)
+-- $6 = 71 (Overall average)
+-- $7 = 'Narrative text feedback...'
+-- $8 = '["Binary Trees", "DNS Lookup"]' (JSON string)
+
+-- STEP 7: Mark interview session as completed
+UPDATE mock_interviews
+SET status = 'completed'
+WHERE id = $1 AND user_id = $2
+RETURNING *;
+
+-- STEP 8: Update user's readiness score in user profile
+UPDATE users
+SET readiness_score = $1
+WHERE id = $2;
+-- $1 = Overall score from step 6 (e.g. 71)
+-- $2 = User UUID
+
+-- STEP 9: Get single mock interview details
+SELECT * FROM mock_interviews
+WHERE id = $1 AND user_id = $2;
+
+-- STEP 10: Get scorecard feedback for a completed session
+SELECT * FROM interview_feedbacks
+WHERE mock_interview_id = $1;
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # SCHEMA REFERENCE — TABLE STRUCTURES (Quick Reminder)
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -426,6 +508,32 @@ CREATE TABLE experience_upvotes (
   user_id       UUID REFERENCES users(id) ON DELETE CASCADE,
   experience_id UUID REFERENCES experiences(id) ON DELETE CASCADE,
   PRIMARY KEY (user_id, experience_id)  -- Composite key: prevents duplicate upvotes
+);
+
+-- mock_interviews table (1:N relationship with users)
+CREATE TABLE mock_interviews (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id         UUID REFERENCES users(id) ON DELETE CASCADE,
+  company_name    VARCHAR(100) NOT NULL,
+  role            VARCHAR(100) NOT NULL,
+  difficulty      VARCHAR(50) NOT NULL,
+  status          VARCHAR(50) DEFAULT 'in_progress',
+  chat_history    JSONB DEFAULT '[]',
+  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- interview_feedbacks table (1:1 relationship with mock_interviews)
+CREATE TABLE interview_feedbacks (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  mock_interview_id UUID REFERENCES mock_interviews(id) ON DELETE CASCADE UNIQUE,
+  dsa_score         INTEGER NOT NULL,
+  os_score          INTEGER NOT NULL,
+  dbms_score        INTEGER NOT NULL,
+  cn_score          INTEGER NOT NULL,
+  overall_score     INTEGER NOT NULL,
+  feedback_details  TEXT NOT NULL,
+  weak_areas        JSONB DEFAULT '[]',
+  created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 

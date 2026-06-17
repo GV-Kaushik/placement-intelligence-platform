@@ -37,33 +37,29 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-center items-center relative overflow-hidden px-4">
-      {/* Premium Visuals: Background Gradient Blobs */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
-
-      <div className="w-full max-w-md z-10">
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-center items-center px-4">
+      <div className="w-full max-w-md">
         {/* Logo and Brand Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center p-3 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-2xl border border-blue-500/30 mb-3">
-            <ShieldCheck className="h-8 w-8 text-blue-400" />
+          <div className="inline-flex items-center justify-center p-3 bg-slate-900 rounded-lg border border-slate-800 mb-3">
+            <ShieldCheck className="h-8 w-8 text-indigo-500" />
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">
             PlaceMentor AI
           </h1>
           <p className="text-slate-400 text-sm mt-1">Prepare Smarter. Get Placed Faster.</p>
         </div>
 
-        {/* Glassmorphic Login Card */}
-        <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl shadow-2xl relative">
+        {/* Solid Login Card */}
+        <div className="bg-slate-900 border border-slate-800 p-8 rounded-lg shadow-lg">
           <h2 className="text-xl font-bold mb-6 text-slate-100">Sign In to Your Account</h2>
 
           {/* Error Message Display */}
           {error && (
-            <div className="mb-5 p-4 bg-red-950/40 border border-red-800/50 rounded-xl flex items-start gap-3 text-red-400 text-sm">
+            <div className="mb-5 p-4 bg-red-950/40 border border-red-800/50 rounded-lg flex items-start gap-3 text-red-400 text-sm">
               <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
@@ -82,9 +78,9 @@ export default function Login() {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={function(e) { setEmail(e.target.value); }}
                   placeholder="Your email"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-950/60 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl outline-none text-slate-100 placeholder-slate-600 transition-all text-sm"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg outline-none text-slate-100 placeholder-slate-600 transition-colors text-sm"
                   disabled={loading}
                 />
               </div>
@@ -102,9 +98,9 @@ export default function Login() {
                 <input
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={function(e) { setPassword(e.target.value); }}
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-950/60 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl outline-none text-slate-100 placeholder-slate-600 transition-all text-sm"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg outline-none text-slate-100 placeholder-slate-600 transition-colors text-sm"
                   disabled={loading}
                 />
               </div>
@@ -114,7 +110,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-[0.98] transition-all rounded-xl font-semibold flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:pointer-events-none disabled:scale-100"
+              className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 transition-colors rounded-lg font-semibold flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:pointer-events-none"
             >
               {loading ? (
                 <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -130,7 +126,7 @@ export default function Login() {
           {/* Link to Signup */}
           <div className="mt-8 text-center text-sm text-slate-400">
             Don't have an account?{' '}
-            <Link to="/signup" className="text-blue-400 hover:text-blue-300 font-semibold transition-all">
+            <Link to="/signup" className="text-indigo-400 hover:text-indigo-350 font-semibold">
               Sign up now
             </Link>
           </div>

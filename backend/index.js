@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import companyRoutes from './routes/companyRoutes.js';
 import experienceRoutes from './routes/experienceRoutes.js';
+import mockRoutes from './routes/mockRoutes.js';
 import pool from './config/db.js';
 
 // Load environment variables
@@ -44,6 +45,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/experiences', experienceRoutes);
+app.use('/api/mock-interviews', mockRoutes);
 
 // Catch-all 404 Route
 app.use('*', (req, res) => {

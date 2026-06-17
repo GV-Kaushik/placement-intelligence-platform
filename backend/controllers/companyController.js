@@ -1,8 +1,6 @@
 import pool from '../config/db.js';
 
-// @desc    Get all companies
-// @route   GET /api/companies
-// @access  Public
+// Get all companies
 export const getCompanies = async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM companies ORDER BY name ASC');
@@ -19,9 +17,7 @@ export const getCompanies = async (req, res) => {
   }
 };
 
-// @desc    Get company details and analytics
-// @route   GET /api/companies/:id
-// @access  Public
+// Get company details and analytics
 export const getCompanyById = async (req, res) => {
   const companyId = parseInt(req.params.id, 10);
 
@@ -45,7 +41,7 @@ export const getCompanyById = async (req, res) => {
 
     const company = companyResult.rows[0];
 
-    // 2. Fetch all experiences for this company to calculate analytics
+    // 2. Fetch all experiences for this company to calculate statistics
     const experiencesResult = await pool.query(
       `SELECT rounds, questions, result 
        FROM experiences 
@@ -65,13 +61,14 @@ export const getCompanyById = async (req, res) => {
     if (totalExperiences > 0) {
       let totalRoundsSum = 0;
 
-      experiences.forEach((exp) => {
-        // Calculate selection count
+      for (let i = 0; i < experiences.length; i++) {
+        const exp = experiences[i];
+
         if (exp.result === 'Selected') {
           successCount++;
         }
 
-        // Calculate rounds count for this experience
+        // Parse rounds data
         let roundsList = [];
         try {
           roundsList = typeof exp.rounds === 'string' ? JSON.parse(exp.rounds) : (exp.rounds || []);
@@ -81,7 +78,7 @@ export const getCompanyById = async (req, res) => {
         const roundsCount = Array.isArray(roundsList) ? roundsList.length : 0;
         totalRoundsSum += roundsCount;
 
-        // Count topics in JSONB questions
+        // Parse questions data
         let qList = [];
         try {
           qList = typeof exp.questions === 'string' ? JSON.parse(exp.questions) : (exp.questions || []);
@@ -90,20 +87,20 @@ export const getCompanyById = async (req, res) => {
         }
 
         if (Array.isArray(qList)) {
-          qList.forEach((q) => {
+          for (let j = 0; j < qList.length; j++) {
+            const q = qList[j];
             if (q.topic && q.topic.trim() !== '') {
               const topicNormalized = q.topic.trim();
               topicCounts[topicNormalized] = (topicCounts[topicNormalized] || 0) + 1;
               totalQuestions++;
             }
-          });
+          }
         }
-      });
+      }
 
       avgRounds = parseFloat((totalRoundsSum / totalExperiences).toFixed(1));
     }
 
-    // Success rate percentage
     const successRate = totalExperiences > 0 ? Math.round((successCount / totalExperiences) * 100) : 0;
 
     // Convert topic counts to sorted percentages
@@ -126,17 +123,16 @@ export const getCompanyById = async (req, res) => {
       return b.count - a.count;
     });
 
-    // 3. Compile analytics response object
     const analytics = {
       totalExperiences,
-      averageRounds: avgRounds || 3, // Fallback default to 3 if no experiences
-      successRate: totalExperiences > 0 ? successRate : 70, // Fallback default success rate
+      averageRounds: avgRounds || 3, // Default fallback
+      successRate: totalExperiences > 0 ? successRate : 70, // Default fallback
       mostAskedTopics: mostAskedTopics.length > 0 ? mostAskedTopics : [
         { topic: 'Arrays', count: 1, percentage: 35 },
         { topic: 'Strings', count: 1, percentage: 25 },
         { topic: 'DP', count: 1, percentage: 20 },
         { topic: 'Graphs', count: 1, percentage: 20 }
-      ], // Seed/placeholder fallback if no topics are available
+      ],
     };
 
     return res.status(200).json({

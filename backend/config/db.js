@@ -14,11 +14,11 @@ const pool = new Pool({
   port: parseInt(process.env.DB_PORT || '5432', 10),
 });
 
-pool.on('connect', () => {
+pool.on('connect', function() {
   console.log('Database connection pool established successfully.');
 });
 
-pool.on('error', (err) => {
+pool.on('error', function(err) {
   console.error('Unexpected error on idle database client:', err.message);
 });
 

@@ -9,6 +9,7 @@ import Companies from './pages/Companies';
 import Experiences from './pages/Experiences';
 import ExperienceDetail from './pages/ExperienceDetail';
 import SubmitExperience from './pages/SubmitExperience';
+import MockInterview from './pages/MockInterview';
 import { useAuth } from './context/AuthContext';
 
 function App() {
@@ -18,7 +19,7 @@ function App() {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-opacity-50"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-indigo-600 border-opacity-50"></div>
       </div>
     );
   }
@@ -63,6 +64,10 @@ function App() {
         <Route 
           path="/submit-experience" 
           element={user ? <SubmitExperience /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/mock-interview" 
+          element={user ? <MockInterview /> : <Navigate to="/login" />} 
         />
         {/* Catch-all Redirect */}
         <Route path="*" element={<Navigate to="/" />} />

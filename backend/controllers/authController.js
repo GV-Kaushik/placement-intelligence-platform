@@ -5,7 +5,7 @@ import pool from '../config/db.js';
 const JWT_SECRET = process.env.JWT_SECRET || 'placementor_ai_super_secret_jwt_key_2026';
 
 // Helper function to generate JWT
-const generateToken = (user) => {
+function generateToken(user) {
   return jwt.sign(
     {
       id: user.id,
@@ -16,15 +16,12 @@ const generateToken = (user) => {
     JWT_SECRET,
     { expiresIn: '30d' }
   );
-};
+}
 
-// @desc    Register a new user
-// @route   POST /api/auth/register
-// @access  Public
+// Register a new user
 export const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
 
-  // Simple validation
   if (!name || !email || !password) {
     return res.status(400).json({
       success: false,
@@ -33,7 +30,7 @@ export const registerUser = async (req, res) => {
   }
 
   try {
-    // Check if user already exists
+    // Check if email already exists in database
     const userExists = await pool.query(
       'SELECT id FROM users WHERE email = $1',
       [email.toLowerCase()]
@@ -46,19 +43,17 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    // Hash the password
+    // Hash the password before saving
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // Insert user
+    // Save the user details
     const newUser = await pool.query(
       'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, role, target_company, readiness_score, created_at',
       [name, email.toLowerCase(), passwordHash]
     );
 
     const user = newUser.rows[0];
-
-    // Generate JWT
     const token = generateToken(user);
 
     return res.status(201).json({
@@ -76,13 +71,10 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// @desc    Log in user
-// @route   POST /api/auth/login
-// @access  Public
+// Log in user
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-  // Simple validation
   if (!email || !password) {
     return res.status(400).json({
       success: false,
@@ -91,7 +83,7 @@ export const loginUser = async (req, res) => {
   }
 
   try {
-    // Check if user exists
+    // Look up user by email
     const result = await pool.query(
       'SELECT * FROM users WHERE email = $1',
       [email.toLowerCase()]
@@ -106,7 +98,7 @@ export const loginUser = async (req, res) => {
 
     const user = result.rows[0];
 
-    // Compare passwords
+    // Verify hashed password
     const isMatch = await bcrypt.compare(password, user.password_hash);
 
     if (!isMatch) {
@@ -116,10 +108,9 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // Clean sensitive data
+    // Delete password hash from memory before returning user object
     delete user.password_hash;
 
-    // Generate JWT
     const token = generateToken(user);
 
     return res.status(200).json({
@@ -137,9 +128,7 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// @desc    Get current user profile
-// @route   GET /api/auth/me
-// @access  Private
+// Get current user profile details
 export const getMe = async (req, res) => {
   try {
     const result = await pool.query(
@@ -167,14 +156,12 @@ export const getMe = async (req, res) => {
   }
 };
 
-// @desc    Update user profile details (e.g. target company)
-// @route   PUT /api/auth/me
-// @access  Private
+// Update user details (like target company)
 export const updateMe = async (req, res) => {
   const { target_company, readiness_score } = req.body;
 
   try {
-    // Dynamically build the UPDATE query based on inputs
+    // Build query based on which fields are provided
     const updates = [];
     const values = [];
     let count = 1;
@@ -198,7 +185,6 @@ export const updateMe = async (req, res) => {
       });
     }
 
-    // Append user id to values array
     values.push(req.user.id);
     const query = `UPDATE users SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${count} RETURNING id, name, email, role, target_company, readiness_score, created_at`;
 

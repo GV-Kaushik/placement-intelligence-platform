@@ -545,6 +545,57 @@
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# FEATURE 12: AI MOCK INTERVIEWS & SCORECARD PIPELINE
+# ══════════════════════════════════════════════════════════════════════════════
+#
+# DESCRIPTION: Allows logged-in students to practice interviews with a company-specific, 
+#              role-specific, and difficulty-adapted AI interviewer (Gemini).
+#              At the end of a 5-question chat, it calculates domain scores and feedback.
+#
+# STEP-BY-STEP CHRONOLOGICAL FLOW:
+#
+#   [PHASE 1: SESSION INITIATION]
+#     Candidate selects Company, Role, Difficulty on UI
+#     └── clicks "Start Interview"
+#         └── Sends HTTP POST to: /api/mock-interviews
+#             ├── Backend creates new session row in mock_interviews (status: 'in_progress', chat_history: '[]')
+#             ├── Backend calls geminiService to generate the 1st Interview Question (Q1)
+#             ├── Backend appends Q1 to chat_history: [{ role: 'model', text: Q1 }]
+#             ├── Backend updates DB row with Q1
+#             └── Sends 201 Response back to React containing the Q1 question
+#
+#   [PHASE 2: CONVERSATION LOOP (Turns 1 to 4)]
+#     Candidate types answer and clicks "Send"
+#     └── Sends HTTP POST to: /api/mock-interviews/:id/message with body: { message: "answer text" }
+#         ├── Backend retrieves session and pushes candidate message: { role: 'user', text: "answer text" }
+#         ├── Backend counts user responses in history using a 'for' loop
+#         ├── IF responses < 5:
+#         │   ├── Call geminiService to read history and generate the next adaptive question (Q_next)
+#         │   ├── Append Q_next to history: { role: 'model', text: Q_next }
+#         │   ├── Save updated history to DB
+#         │   └── Sends 200 Response back to React containing the new question
+#         └── (Repeat for questions 2, 3, and 4)
+#
+#   [PHASE 3: FINAL ANSWER & AI EVALUATION (Turn 5)]
+#     Candidate types final answer and clicks "Send"
+#     └── Sends HTTP POST to: /api/mock-interviews/:id/message (5th user message)
+#         ├── Backend retrieves session and pushes 5th answer to history
+#         ├── Count = 5 (Max reached!)
+#         ├── Save completed history to DB (so transcript is fully stored)
+#         ├── Call geminiService.evaluateInterview() to analyze transcript
+#         │   └── Gemini evaluates DSA, OS, DBMS, CN scores and returns a structured JSON object
+#         ├── Insert scorecard row in interview_feedbacks (dsa_score, os_score, CN/OS/DBMS scores, feedback_details, weak_areas)
+#         ├── Update mock_interviews.status = 'completed'
+#         ├── Update users.readiness_score = overall_score (updates dashboard metrics)
+#         └── Sends 200 Response back to React containing the finished session and final scorecard
+#
+# DATABASE TABLES AFFECTED:
+#   mock_interviews (INSERT/UPDATE), interview_feedbacks (INSERT), users (UPDATE readiness_score)
+#
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # WHAT IS BUILT vs WHAT IS PENDING
 # ══════════════════════════════════════════════════════════════════════════════
 #
@@ -559,13 +610,15 @@
 #   - Get Single Experience (GET /api/experiences/:id)
 #   - Submit Experience (POST /api/experiences)
 #   - Toggle Upvote (POST /api/experiences/:id/upvote)
+#   - Start Mock Interview (POST /api/mock-interviews)
+#   - Send Chat Message & Evaluate (POST /api/mock-interviews/:id/message)
+#   - Retrieve Mock Interview (GET /api/mock-interviews/:id)
 #   - Auth Middleware (protect, protectOptional, adminOnly)
 #   - Database Schema (16 tables)
 #   - Seed Data
-#   - Frontend: LandingPage, Login, Signup, Dashboard, Companies, CompanyDetail, Experiences, ExperienceDetail, SubmitExperience, AuthContext, api.js, App.jsx routing
+#   - Frontend: LandingPage, Login, Signup, Dashboard, Companies, CompanyDetail, Experiences, ExperienceDetail, SubmitExperience, MockInterview, AuthContext, api.js, App.jsx routing
 #
 # 🔲 PENDING (Frontend pages to build):
-#   - MockInterview.jsx (AI Gemini chat interface)
 #   - Roadmap.jsx (AI generated roadmap display)
 #   - ResumeEvaluator.jsx (PDF upload + AI analysis)
 #   - ApplicationTracker.jsx (Kanban/table of job applications)
