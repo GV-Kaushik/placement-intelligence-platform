@@ -39,6 +39,154 @@ export default function LandingPage() {
     fetchData();
   }, []);
 
+  // 1. Build company skeleton loader elements using a standard for loop
+  const companySkeletons = [];
+  for (let i = 1; i <= 4; i++) {
+    companySkeletons.push(
+      <div key={i} className="h-48 bg-slate-900/40 border border-slate-900 rounded-2xl animate-pulse"></div>
+    );
+  }
+
+  // 2. Build featured company card elements using a standard for loop
+  const companyCards = [];
+  for (let i = 0; i < companies.length; i++) {
+    const company = companies[i];
+    companyCards.push(
+      <div 
+        key={company.id} 
+        className="bg-slate-900/40 backdrop-blur-sm border border-slate-900 hover:border-slate-800/80 p-6 rounded-2xl flex flex-col justify-between transition-all group hover:-translate-y-0.5"
+      >
+        <div>
+          <div className="h-10 w-10 flex items-center justify-center bg-white/5 rounded-xl border border-white/10 p-2 mb-4 group-hover:bg-white/10 transition-colors">
+            <img 
+              src={company.logo_url || 'https://upload.wikimedia.org/wikipedia/commons/c/c9/Building_placeholder.svg'} 
+              alt={company.name} 
+              className="max-h-full max-w-full object-contain"
+            />
+          </div>
+          <h3 className="font-bold text-lg text-slate-100 mb-2">{company.name}</h3>
+          <p className="text-slate-400 text-xs line-clamp-3 leading-relaxed mb-4">
+            {company.description}
+          </p>
+        </div>
+        <Link 
+          to={`/login`} 
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 group-hover:text-blue-300 transition-colors mt-2"
+        >
+          <span>Analyze Stats</span>
+          <ChevronRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+    );
+  }
+
+  // 3. Build experience skeleton loader elements using a standard for loop
+  const experienceSkeletons = [];
+  for (let i = 1; i <= 2; i++) {
+    experienceSkeletons.push(
+      <div key={i} className="h-40 bg-slate-900/40 border border-slate-900 rounded-2xl animate-pulse"></div>
+    );
+  }
+
+  // 4. Build recent experience card elements using a standard for loop
+  const experienceCards = [];
+  for (let i = 0; i < experiences.length; i++) {
+    const exp = experiences[i];
+    
+    // Build round list inside the experience (using a nested loop for rounds)
+    const roundItems = [];
+    if (exp.rounds && Array.isArray(exp.rounds)) {
+      // Show only the first round on the landing page
+      const roundsToRender = exp.rounds.slice(0, 1);
+      for (let j = 0; j < roundsToRender.length; j++) {
+        const round = roundsToRender[j];
+        roundItems.push(
+          <div key={j} className="text-sm">
+            <h4 className="font-semibold text-slate-300 text-xs uppercase tracking-wider mb-1">
+              {round.round_name}
+            </h4>
+            <p className="text-slate-400 line-clamp-2 leading-relaxed text-xs">
+              {round.content}
+            </p>
+          </div>
+        );
+      }
+    }
+
+    // Build questions list inside the experience (using a nested loop for questions)
+    const questionBadges = [];
+    if (exp.questions && Array.isArray(exp.questions)) {
+      const questionsToRender = exp.questions.slice(0, 3);
+      for (let j = 0; j < questionsToRender.length; j++) {
+        const q = questionsToRender[j];
+        questionBadges.push(
+          <span key={j} className="text-[11px] px-2.5 py-0.5 bg-slate-900/60 border border-slate-900 text-slate-400 rounded-full font-medium">
+            {q.topic}
+          </span>
+        );
+      }
+    }
+
+    experienceCards.push(
+      <div 
+        key={exp.id} 
+        className="bg-slate-900/20 backdrop-blur-sm border border-slate-900/80 hover:border-slate-800/60 p-6 rounded-2xl transition-all"
+      >
+        {/* Review Card Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-900/40">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 flex items-center justify-center bg-white/5 border border-white/10 rounded-xl p-2 shrink-0">
+              <img 
+                src={exp.company_logo} 
+                alt={exp.company_name} 
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-100 flex items-center gap-2 text-sm sm:text-base">
+                <span>{exp.company_name}</span>
+                <span className="text-xs px-2 py-0.5 bg-slate-800 text-slate-400 rounded-md font-medium">
+                  {exp.role}
+                </span>
+              </h3>
+              <p className="text-slate-500 text-xs mt-0.5">Submitted by {exp.user_name}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 self-start sm:self-auto">
+            <span className={`text-xs px-3 py-1 rounded-full font-bold border ${
+              exp.result === 'Selected' 
+                ? 'bg-emerald-950/30 border-emerald-800/40 text-emerald-400' 
+                : 'bg-slate-900 border-slate-800 text-slate-400'
+            }`}>
+              {exp.result}
+            </span>
+            <div className="flex items-center gap-1.5 text-xs text-slate-400 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-900">
+              <ThumbsUp className="h-3.5 w-3.5" />
+              <span>{exp.upvotes}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Rounds Summary (Truncated display on landing page) */}
+        <div className="space-y-3 mb-4">
+          {roundItems}
+        </div>
+
+        {/* Questions Badges */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider mr-1">Topics:</span>
+          {questionBadges}
+          {exp.questions && exp.questions.length > 3 && (
+            <span className="text-[11px] text-slate-500 font-semibold pl-1">
+              +{exp.questions.length - 3} more
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col relative overflow-hidden">
       {/* Visual Background Glows */}
@@ -144,39 +292,11 @@ export default function LandingPage() {
 
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="h-48 bg-slate-900/40 border border-slate-900 rounded-2xl animate-pulse"></div>
-            ))}
+            {companySkeletons}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {companies.map((company) => (
-              <div 
-                key={company.id} 
-                className="bg-slate-900/40 backdrop-blur-sm border border-slate-900 hover:border-slate-800/80 p-6 rounded-2xl flex flex-col justify-between transition-all group hover:-translate-y-0.5"
-              >
-                <div>
-                  <div className="h-10 w-10 flex items-center justify-center bg-white/5 rounded-xl border border-white/10 p-2 mb-4 group-hover:bg-white/10 transition-colors">
-                    <img 
-                      src={company.logo_url || 'https://upload.wikimedia.org/wikipedia/commons/c/c9/Building_placeholder.svg'} 
-                      alt={company.name} 
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  </div>
-                  <h3 className="font-bold text-lg text-slate-100 mb-2">{company.name}</h3>
-                  <p className="text-slate-400 text-xs line-clamp-3 leading-relaxed mb-4">
-                    {company.description}
-                  </p>
-                </div>
-                <Link 
-                  to={`/login`} 
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 group-hover:text-blue-300 transition-colors mt-2"
-                >
-                  <span>Analyze Stats</span>
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-            ))}
+            {companyCards}
           </div>
         )}
       </section>
@@ -199,83 +319,11 @@ export default function LandingPage() {
 
         {loading ? (
           <div className="space-y-6">
-            {[1, 2].map((n) => (
-              <div key={n} className="h-40 bg-slate-900/40 border border-slate-900 rounded-2xl animate-pulse"></div>
-            ))}
+            {experienceSkeletons}
           </div>
         ) : (
           <div className="space-y-6">
-            {experiences.map((exp) => (
-              <div 
-                key={exp.id} 
-                className="bg-slate-900/20 backdrop-blur-sm border border-slate-900/80 hover:border-slate-800/60 p-6 rounded-2xl transition-all"
-              >
-                {/* Review Card Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-900/40">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 flex items-center justify-center bg-white/5 border border-white/10 rounded-xl p-2 shrink-0">
-                      <img 
-                        src={exp.company_logo} 
-                        alt={exp.company_name} 
-                        className="max-h-full max-w-full object-contain"
-                      />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-slate-100 flex items-center gap-2 text-sm sm:text-base">
-                        <span>{exp.company_name}</span>
-                        <span className="text-xs px-2 py-0.5 bg-slate-800 text-slate-400 rounded-md font-medium">
-                          {exp.role}
-                        </span>
-                      </h3>
-                      <p className="text-slate-500 text-xs mt-0.5">Submitted by {exp.user_name}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 self-start sm:self-auto">
-                    <span className={`text-xs px-3 py-1 rounded-full font-bold border ${
-                      exp.result === 'Selected' 
-                        ? 'bg-emerald-950/30 border-emerald-800/40 text-emerald-400' 
-                        : 'bg-slate-900 border-slate-800 text-slate-400'
-                    }`}>
-                      {exp.result}
-                    </span>
-                    <div className="flex items-center gap-1.5 text-xs text-slate-400 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-900">
-                      <ThumbsUp className="h-3.5 w-3.5" />
-                      <span>{exp.upvotes}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Rounds Summary (Truncated display on landing page) */}
-                <div className="space-y-3 mb-4">
-                  {exp.rounds && exp.rounds.slice(0, 1).map((round, idx) => (
-                    <div key={idx} className="text-sm">
-                      <h4 className="font-semibold text-slate-300 text-xs uppercase tracking-wider mb-1">
-                        {round.round_name}
-                      </h4>
-                      <p className="text-slate-400 line-clamp-2 leading-relaxed text-xs">
-                        {round.content}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Questions Badges */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider mr-1">Topics:</span>
-                  {exp.questions && exp.questions.slice(0, 3).map((q, idx) => (
-                    <span key={idx} className="text-[11px] px-2.5 py-0.5 bg-slate-900/60 border border-slate-900 text-slate-400 rounded-full font-medium">
-                      {q.topic}
-                    </span>
-                  ))}
-                  {exp.questions && exp.questions.length > 3 && (
-                    <span className="text-[11px] text-slate-500 font-semibold pl-1">
-                      +{exp.questions.length - 3} more
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
+            {experienceCards}
           </div>
         )}
       </section>

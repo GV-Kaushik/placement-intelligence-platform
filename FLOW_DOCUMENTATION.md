@@ -562,15 +562,9 @@
 #   - Auth Middleware (protect, protectOptional, adminOnly)
 #   - Database Schema (16 tables)
 #   - Seed Data
-#   - Frontend: LandingPage, Login, Signup, AuthContext, api.js, App.jsx routing
+#   - Frontend: LandingPage, Login, Signup, Dashboard, Companies, CompanyDetail, Experiences, ExperienceDetail, SubmitExperience, AuthContext, api.js, App.jsx routing
 #
 # 🔲 PENDING (Frontend pages to build):
-#   - Dashboard.jsx (Student dashboard with stats, readiness score, target company picker)
-#   - Companies.jsx (Explorer list of all companies)
-#   - CompanyDetail.jsx (Analytics + experiences for one company)
-#   - Experiences.jsx (Feed of all shared interview experiences)
-#   - ExperienceDetail.jsx (Full read + comments + upvote)
-#   - SubmitExperience.jsx (Form to share your own interview experience)
 #   - MockInterview.jsx (AI Gemini chat interface)
 #   - Roadmap.jsx (AI generated roadmap display)
 #   - ResumeEvaluator.jsx (PDF upload + AI analysis)

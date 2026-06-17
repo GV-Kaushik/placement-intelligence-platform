@@ -4,6 +4,11 @@ import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import CompanyDetail from './pages/CompanyDetail';
+import Companies from './pages/Companies';
+import Experiences from './pages/Experiences';
+import ExperienceDetail from './pages/ExperienceDetail';
+import SubmitExperience from './pages/SubmitExperience';
 import { useAuth } from './context/AuthContext';
 
 function App() {
@@ -39,7 +44,26 @@ function App() {
           path="/dashboard" 
           element={user ? <Dashboard /> : <Navigate to="/login" />} 
         />
-
+        <Route 
+          path="/companies" 
+          element={user ? <Companies /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/companies/:id" 
+          element={user ? <CompanyDetail /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/experiences" 
+          element={user ? <Experiences /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/experiences/:id" 
+          element={user ? <ExperienceDetail /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/submit-experience" 
+          element={user ? <SubmitExperience /> : <Navigate to="/login" />} 
+        />
         {/* Catch-all Redirect */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

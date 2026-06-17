@@ -185,7 +185,7 @@ export const createExperience = async (req, res) => {
       INSERT INTO experiences 
         (user_id, company_id, role, result, rounds, questions)
       VALUES 
-        ($1, $2, $3, $4, $5, $6)
+        ($1, $2, $3, $4, $5::jsonb, $6::jsonb)
       RETURNING *
     `;
 
@@ -208,6 +208,7 @@ export const createExperience = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Server error saving placement experience',
+      error: error.message
     });
   }
 };

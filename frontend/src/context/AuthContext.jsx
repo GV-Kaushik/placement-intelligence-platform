@@ -5,13 +5,13 @@ import api from '../services/api';
 const AuthContext = createContext();
 
 // Create the Provider component
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Check if user is logged in on page load
   useEffect(() => {
-    const checkLoggedIn = async () => {
+    async function checkLoggedIn() {
       const token = localStorage.getItem('token');
       if (token) {
         try {
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Login handler
-  const login = async (email, password) => {
+  async function login(email, password) {
     const res = await api.post('/auth/login', { email, password });
     localStorage.setItem('token', res.data.token);
     setUser(res.data.user);
@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Register handler
-  const register = async (name, email, password) => {
+  async function register(name, email, password) {
     const res = await api.post('/auth/register', { name, email, password });
     localStorage.setItem('token', res.data.token);
     setUser(res.data.user);
@@ -45,13 +45,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Logout handler
-  const logout = () => {
+  function logout() {
     localStorage.removeItem('token');
     setUser(null);
   };
 
   // Update profile / target company handler
-  const updateProfile = async (updates) => {
+  async function updateProfile(updates) {
     const res = await api.put('/auth/me', updates);
     setUser(res.data.user);
     return res.data.user;
@@ -65,4 +65,6 @@ export const AuthProvider = ({ children }) => {
 };
 
 // Custom hook to use Auth Context easily
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  return useContext(AuthContext);
+}

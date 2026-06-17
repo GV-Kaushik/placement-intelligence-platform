@@ -107,13 +107,24 @@ export const getCompanyById = async (req, res) => {
     const successRate = totalExperiences > 0 ? Math.round((successCount / totalExperiences) * 100) : 0;
 
     // Convert topic counts to sorted percentages
-    const mostAskedTopics = Object.entries(topicCounts)
-      .map(([topic, count]) => ({
-        topic,
-        count,
-        percentage: totalQuestions > 0 ? Math.round((count / totalQuestions) * 100) : 0,
-      }))
-      .sort((a, b) => b.count - a.count);
+    const mostAskedTopics = [];
+    const entries = Object.entries(topicCounts);
+    for (let i = 0; i < entries.length; i++) {
+      const topic = entries[i][0];
+      const count = entries[i][1];
+      const percentage = totalQuestions > 0 ? Math.round((count / totalQuestions) * 100) : 0;
+      
+      mostAskedTopics.push({
+        topic: topic,
+        count: count,
+        percentage: percentage
+      });
+    }
+
+    // Sort the list so the most frequent topics appear first
+    mostAskedTopics.sort(function(a, b) {
+      return b.count - a.count;
+    });
 
     // 3. Compile analytics response object
     const analytics = {
