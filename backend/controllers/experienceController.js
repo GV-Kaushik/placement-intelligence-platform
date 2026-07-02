@@ -11,11 +11,11 @@ export const getExperiences = async (req, res) => {
         e.id, e.role, e.result, e.rounds, 
         e.questions, e.upvotes, e.created_at,
         c.id as company_id, c.name as company_name, c.logo_url as company_logo,
-        u.name as user_name,
+        COALESCE(u.name, 'Verified Senior') as user_name,
         EXISTS(SELECT 1 FROM experience_upvotes WHERE experience_id = e.id AND user_id = $1) as has_upvoted
       FROM experiences e
       JOIN companies c ON e.company_id = c.id
-      JOIN users u ON e.user_id = u.id
+      LEFT JOIN users u ON e.user_id = u.id
       WHERE 1=1
     `;
 
@@ -74,11 +74,11 @@ export const getExperienceById = async (req, res) => {
         e.id, e.role, e.result, e.rounds, 
         e.questions, e.upvotes, e.created_at,
         c.id as company_id, c.name as company_name, c.logo_url as company_logo,
-        u.name as user_name,
+        COALESCE(u.name, 'Verified Senior') as user_name,
         EXISTS(SELECT 1 FROM experience_upvotes WHERE experience_id = e.id AND user_id = $1) as has_upvoted
       FROM experiences e
       JOIN companies c ON e.company_id = c.id
-      JOIN users u ON e.user_id = u.id
+      LEFT JOIN users u ON e.user_id = u.id
       WHERE e.id = $2
     `;
 
@@ -252,9 +252,9 @@ export const getExperienceComments = async (req, res) => {
   try {
     const queryText = `
       SELECT 
-        c.id, c.comment_text, c.created_at, u.name as user_name
+        c.id, c.comment_text, c.created_at, COALESCE(u.name, 'Verified Senior') as user_name
       FROM comments c
-      JOIN users u ON c.user_id = u.id
+      LEFT JOIN users u ON c.user_id = u.id
       WHERE c.experience_id = $1
       ORDER BY c.created_at ASC
     `;
