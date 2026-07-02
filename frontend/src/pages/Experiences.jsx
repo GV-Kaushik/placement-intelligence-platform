@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ThumbsUp, Building2, User, ChevronRight } from 'lucide-react';
+import { Search, ThumbsUp, Building2, User, ChevronRight, MessageSquarePlus } from 'lucide-react';
 import api from '../services/api';
+import Layout from '../components/Layout';
 
 export default function Experiences() {
-  const [experiences, setExperiences] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
-  // State for the Search Bar
-  const [searchQuery, setSearchQuery] = useState('');
+  const [experiences, setExperiences] = useState([]); // Stores the list of interview experiences fetched from the backend matching search query
+  const [loading, setLoading] = useState(true);       // Boolean flag to show loading spinner while fetching experiences
+  const [searchQuery, setSearchQuery] = useState(''); // Stores the search keyword string typed into the query search bar (debounced to trigger api fetches)
 
   // Function to fetch experiences from the backend
   async function fetchExperiences(query = '') {
     setLoading(true);
     try {
-      // If there is a search query, append it to the URL: /experiences?q=react
       const url = query ? `/experiences?q=${query}` : '/experiences';
       const res = await api.get(url);
       setExperiences(res.data.experiences);
@@ -27,22 +25,19 @@ export default function Experiences() {
 
   // Live Search (Debounced)
   useEffect(() => {
-    // Wait 300ms after the user stops typing to call the API
     const delayDebounceFn = setTimeout(() => {
       fetchExperiences(searchQuery);
     }, 300);
 
-    // Cleanup function clears the timer if they type again before 300ms
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
 
-  // Handle when the user submits a search
   function handleSearch(e) {
     e.preventDefault();
     fetchExperiences(searchQuery);
   }
 
-  // Build experience card elements using a standard for loop (instead of a map in the template)
+  // Build experience card elements using a standard for loop
   const experienceCards = [];
   for (let i = 0; i < experiences.length; i++) {
     const exp = experiences[i];
@@ -50,30 +45,30 @@ export default function Experiences() {
       <Link 
         to={`/experiences/${exp.id}`} 
         key={exp.id}
-        className="block bg-slate-900 border border-slate-800 rounded-lg p-6 hover:bg-slate-800 transition-colors group"
+        className="block bg-white border border-slate-200 rounded-xl p-5 md:p-6 hover:border-slate-350 transition-colors group animate-fade-in"
       >
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           
           {/* Left Side: Company & Author Info */}
           <div className="flex items-start gap-4">
-            <div className="h-14 w-14 bg-slate-800 rounded-lg flex items-center justify-center text-indigo-400 shrink-0 border border-slate-700">
-              <Building2 className="h-7 w-7" />
+            <div className="h-12 w-12 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center text-slate-500 shrink-0">
+              <Building2 className="h-6 w-6 text-slate-650" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-                {exp.company_name}
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+                <span>{exp.company_name}</span>
                 {/* Result Badge */}
-                <span className={`text-xs px-2 py-1 rounded-lg border ${
-                  exp.result === 'Selected' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                  exp.result === 'Rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                  'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                <span className={`text-[10px] px-2 py-0.5 rounded border font-semibold ${
+                  exp.result === 'Selected' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                  exp.result === 'Rejected' ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                  'bg-amber-50 text-amber-700 border-amber-200'
                 }`}>
                   {exp.result}
                 </span>
               </h2>
-              <p className="text-slate-300 font-medium mt-1">{exp.role}</p>
-              <div className="flex items-center gap-2 text-sm text-slate-500 mt-2">
-                <User className="h-4 w-4" />
+              <p className="text-xs font-semibold text-slate-600 mt-1">{exp.role}</p>
+              <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-2">
+                <User className="h-3.5 w-3.5" />
                 <span>Shared by {exp.user_name}</span>
                 <span>•</span>
                 <span>{new Date(exp.created_at).toLocaleDateString()}</span>
@@ -82,13 +77,13 @@ export default function Experiences() {
           </div>
 
           {/* Right Side: Upvotes & Arrow */}
-          <div className="flex items-center gap-6 self-end md:self-center">
-            <div className="flex items-center gap-2 bg-slate-950 px-4 py-2 rounded-lg border border-slate-800">
-              <ThumbsUp className={`h-4 w-4 ${exp.has_upvoted ? 'text-indigo-400' : 'text-slate-500'}`} />
-              <span className="font-semibold text-slate-300">{exp.upvotes}</span>
+          <div className="flex items-center gap-4 self-end md:self-center">
+            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600">
+              <ThumbsUp className={`h-3.5 w-3.5 ${exp.has_upvoted ? 'text-blue-600 fill-blue-50' : 'text-slate-455'}`} />
+              <span>{exp.upvotes}</span>
             </div>
-            <div className="h-10 w-10 bg-slate-800 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 transition-colors">
-              <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-white" />
+            <div className="h-9 w-9 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center group-hover:bg-slate-100 transition-colors">
+              <ChevronRight className="h-4.5 w-4.5 text-slate-400 group-hover:text-blue-600" />
             </div>
           </div>
 
@@ -98,54 +93,62 @@ export default function Experiences() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-6 md:p-12">
-      <div className="max-w-5xl mx-auto">
+    <Layout>
+      <div className="max-w-5xl mx-auto px-6 py-8 w-full">
         
-        {/* --- PAGE HEADER & SEARCH BAR --- */}
-        <div className="mb-10 text-center">
-          <h1 className="text-4xl font-extrabold text-white mb-4">
-            Placement Experiences
-          </h1>
-          <p className="text-slate-400 text-lg mb-8">
-            Learn from the real interview stories of your seniors and peers.
-          </p>
+        {/* --- PAGE HEADER --- */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-1">
+              Experiences
+            </h1>
+            <p className="text-slate-500 text-sm">
+              Read real interview stories and interview patterns from your seniors and peers.
+            </p>
+          </div>
+          <Link 
+            to="/submit-experience"
+            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm font-bold transition-colors cursor-pointer w-fit"
+          >
+            <MessageSquarePlus className="h-4.5 w-4.5" />
+            <span>Share Experience</span>
+          </Link>
+        </div>
 
-          {/* Search Form */}
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative flex gap-2">
+        {/* --- SEARCH BAR --- */}
+        <div className="mb-6">
+          <form onSubmit={handleSearch} className="relative w-full">
+            <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <Search className="h-4 w-4" />
+            </span>
             <input 
               type="text" 
               placeholder="Search for companies, roles, or topics..."
               value={searchQuery}
               onChange={function(e) { setSearchQuery(e.target.value); }}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg py-4 pl-6 pr-14 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full bg-white border border-slate-300 rounded-lg py-2 pl-9 pr-4 text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-colors text-sm"
             />
-            <button 
-              type="submit"
-              className="absolute right-2 top-2 bottom-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg p-3 transition-colors flex items-center justify-center"
-            >
-              <Search className="h-5 w-5 text-white" />
-            </button>
           </form>
         </div>
 
         {/* --- EXPERIENCES FEED --- */}
         {loading ? (
           <div className="flex justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-indigo-550 border-opacity-50"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-2 border-slate-300 border-t-blue-600"></div>
           </div>
         ) : experiences.length === 0 ? (
-          <div className="text-center py-20 text-slate-500 bg-slate-900 rounded-lg border border-slate-800">
-            <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <h2 className="text-xl font-bold">No experiences found</h2>
-            <p>Try searching for a different keyword or topic.</p>
+          <div className="text-center py-16 text-slate-500 bg-white rounded-xl border border-slate-200">
+            <Search className="h-10 w-10 mx-auto mb-3 text-slate-400 opacity-60" />
+            <h2 className="text-base font-bold text-slate-800">No experiences found</h2>
+            <p className="text-xs text-slate-550 mt-1">Try searching for a different keyword or company name.</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {experienceCards}
           </div>
         )}
 
       </div>
-    </div>
+    </Layout>
   );
 }

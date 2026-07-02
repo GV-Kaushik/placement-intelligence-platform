@@ -1,8 +1,8 @@
 import pool from '../config/db.js';
 
-// Get all experiences (with filters and search query)
+// Get all experiences (with search query)
 export const getExperiences = async (req, res) => {
-  const { company_id, role, result, q } = req.query;
+  const { q } = req.query;
   const userId = req.user?.id; // will be populated if request goes through protectOptional middleware
 
   try {
@@ -21,27 +21,6 @@ export const getExperiences = async (req, res) => {
 
     const values = [userId || null]; // $1 is always userId (or null)
     let paramIndex = 2;
-
-    // Filter by Company ID
-    if (company_id) {
-      queryText += ` AND e.company_id = $${paramIndex}`;
-      values.push(parseInt(company_id, 10));
-      paramIndex++;
-    }
-
-    // Filter by Role Name
-    if (role) {
-      queryText += ` AND e.role ILIKE $${paramIndex}`;
-      values.push(`%${role}%`);
-      paramIndex++;
-    }
-
-    // Filter by Interview Result (Selected/Rejected)
-    if (result) {
-      queryText += ` AND e.result = $${paramIndex}`;
-      values.push(result);
-      paramIndex++;
-    }
 
     // Keyword Search (searches company, role, rounds, and questions)
     if (q && q.trim() !== '') {
@@ -262,6 +241,85 @@ export const toggleUpvoteExperience = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Server error updating upvote status',
+    });
+  }
+};
+
+// Retrieve all comments for a specific placement experience
+export const getExperienceComments = async (req, res) => {
+  const expId = req.params.id;
+
+  try {
+    const queryText = `
+      SELECT 
+        c.id, c.comment_text, c.created_at, u.name as user_name
+      FROM comments c
+      JOIN users u ON c.user_id = u.id
+      WHERE c.experience_id = $1
+      ORDER BY c.created_at ASC
+    `;
+    const result = await pool.query(queryText, [expId]);
+
+    return res.status(200).json({
+      success: true,
+      comments: result.rows,
+    });
+  } catch (error) {
+    console.error('Error fetching comments:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error retrieving comments',
+    });
+  }
+};
+
+// Create a new comment on a placement experience
+export const createExperienceComment = async (req, res) => {
+  const expId = req.params.id;
+  const userId = req.user.id;
+  const { comment_text } = req.body;
+
+  if (!comment_text || comment_text.trim() === '') {
+    return res.status(400).json({
+      success: false,
+      message: 'Comment text cannot be empty',
+    });
+  }
+
+  try {
+    // 1. Verify experience exists
+    const expCheck = await pool.query('SELECT id FROM experiences WHERE id = $1', [expId]);
+    if (expCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Experience not found',
+      });
+    }
+
+    // 2. Insert comment
+    const insertQuery = `
+      INSERT INTO comments (user_id, experience_id, comment_text)
+      VALUES ($1, $2, $3)
+      RETURNING id, comment_text, created_at
+    `;
+    const commentRes = await pool.query(insertQuery, [userId, expId, comment_text.trim()]);
+    
+    // Add user name metadata for frontend rendering
+    const comment = {
+      ...commentRes.rows[0],
+      user_name: req.user.name
+    };
+
+    return res.status(201).json({
+      success: true,
+      message: 'Comment posted successfully',
+      comment,
+    });
+  } catch (error) {
+    console.error('Error saving comment:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error saving comment',
     });
   }
 };

@@ -3,7 +3,6 @@ import { protect } from '../middleware/authMiddleware.js';
 import {
   generateRoadmap,
   getRoadmaps,
-  getRoadmapById,
   deleteRoadmap
 } from '../controllers/roadmapController.js';
 
@@ -18,10 +17,7 @@ router.post('/', generateRoadmap);
 // 2. GET /api/roadmaps -> List history of roadmaps
 router.get('/', getRoadmaps);
 
-// 3. GET /api/roadmaps/:id -> Retrieve a specific roadmap
-router.get('/:id', getRoadmapById);
-
-// 4. DELETE /api/roadmaps/:id -> Delete a specific roadmap
+// 3. DELETE /api/roadmaps/:id -> Delete a specific roadmap
 router.delete('/:id', deleteRoadmap);
 
 export default router;

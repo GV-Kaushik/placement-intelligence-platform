@@ -58,7 +58,6 @@ CREATE TABLE coding_platform_stats (
     platform_name VARCHAR(100) NOT NULL, -- 'LeetCode', 'Codeforces', etc.
     username VARCHAR(100) NOT NULL,
     solved_count INTEGER DEFAULT 0,
-    rating INTEGER DEFAULT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

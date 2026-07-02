@@ -596,6 +596,99 @@
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# FEATURE 13: AI RESUME EVALUATOR
+# ══════════════════════════════════════════════════════════════════════════════
+#
+# DESCRIPTION: Allows logged-in students to upload a PDF resume, extracts the text
+#              in memory, validates character density to block empty or scanned image PDFs,
+#              evaluates placement readiness with Gemini AI, and displays structured lists of
+#              strengths, weaknesses, and suggestions.
+#
+# STEP-BY-STEP CHRONOLOGICAL FLOW:
+#
+# [FRONTEND]
+#  1. ResumeEvaluator.jsx
+#     → User drags-and-drops or clicks and browses to select a PDF file.
+#     → File state is stored in `file`.
+#     │
+#  2. User clicks "Analyze Placement Score" button
+#     → Calls `handleUpload(e)`
+#     → Prepares a `multipart/form-data` payload via JavaScript `FormData` class.
+#     → Sends HTTP POST request to: http://localhost:5000/api/resumes/upload
+#
+# [BACKEND]
+#  3. backend/routes/resumeRoutes.js
+#     → Intercepts request with `upload.single('resume')` middleware.
+#     → Multer parses request stream, validates PDF type & size, and creates a buffer at `req.file.buffer`.
+#     → Calls controller `uploadAndEvaluateResume()`
+#
+#  4. backend/controllers/resumeController.js → uploadAndEvaluateResume()
+#     → Instantiates ESM-based `PDFParse` class using `new PDFParse({ data: new Uint8Array(req.file.buffer) })`
+#     → Runs `await pdfData.getText()` to extract raw plain text.
+#     → Guard clause checks if `parsedText.trim().length < 50`.
+#     │   ├── If true → rejects request with 400 error: "Please upload a selectable text PDF..."
+#     │
+#     → Calls `geminiService.analyzeResume(parsedText)`
+#     │   ├── Gemini runs prompt and outputs a JSON object with strengths, weaknesses, suggestions lists.
+#     │
+#     → INSERT INTO resumes (user_id, file_name, parsed_text, strengths, weaknesses, suggestions)
+#     → Sends 201 Response back to React containing the created resume object.
+#
+# [FRONTEND - BACK]
+#  5. ResumeEvaluator.jsx
+#     → Updates `selectedResume` state with report details.
+#     → Prepend item to `resumesHistory` state list.
+#     → UI renders green checkmarks for strengths, red caution badges for weaknesses, and indigo bulbs for suggestions using standard `for` loops (no map functions).
+#
+# DATABASE TABLES AFFECTED: resumes (INSERT new row, SELECT history, DELETE row)
+#
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# FEATURE 14: JOB APPLICATION TRACKER
+# ══════════════════════════════════════════════════════════════════════════════
+#
+# DESCRIPTION: Allows logged-in students to track their job applications. Users can
+#              add new logs, filter cards by active pipeline status (Applied, OA,
+#              Interviewing, Selected, Rejected), update stages, and delete logs.
+#
+# STEP-BY-STEP CHRONOLOGICAL FLOW:
+#
+# [FRONTEND]
+#  1. ApplicationTracker.jsx
+#     → User fills company select and role text fields, then clicks "Add Application" button.
+#     → Calls `handleAddApplication(e)`.
+#     → Sends HTTP POST request to: http://localhost:5000/api/applications
+#
+# [BACKEND]
+#  2. backend/routes/applicationRoutes.js
+#     → Intercepts request via `protect` middleware to verify identity.
+#     → Forwards to controller `createApplication()`.
+#
+#  3. backend/controllers/applicationController.js → createApplication()
+#     → Reads { company_id, role, status } from req.body.
+#     → INSERT INTO applications (user_id, company_id, role, status) VALUES ($1, $2, $3, $4)
+#     → SELECT name FROM companies WHERE id = company_id to resolve company metadata.
+#     → Sends 201 Response with the completed application object.
+#
+# [FRONTEND - BACK]
+#  4. ApplicationTracker.jsx
+#     → Prepends new application to the state list using standard loops.
+#
+# ★ WHEN STATUS CHANGES:
+#     → User changes status select input on any card.
+#     → Triggers `handleStatusChange(id, newStatus)`.
+#     → Sends HTTP PUT request to: http://localhost:5000/api/applications/:id with body { status: newStatus }
+#     → Backend runs `UPDATE applications SET status = $1 WHERE id = $2 AND user_id = $3`
+#     → Frontend catches response and updates status locally, changing badge color in real-time.
+#
+# DATABASE TABLES AFFECTED: applications (INSERT, SELECT, UPDATE, DELETE), companies (SELECT name)
+#
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # WHAT IS BUILT vs WHAT IS PENDING
 # ══════════════════════════════════════════════════════════════════════════════
 #
@@ -617,13 +710,19 @@
 #   - Get Roadmaps History (GET /api/roadmaps)
 #   - Get Specific Roadmap (GET /api/roadmaps/:id)
 #   - Delete Roadmap (DELETE /api/roadmaps/:id)
+#   - Upload & Evaluate Resume (POST /api/resumes/upload)
+#   - Get Resumes History (GET /api/resumes)
+#   - Delete Resume (DELETE /api/resumes/:id)
+#   - Log Job Application (POST /api/applications)
+#   - Get Job Applications (GET /api/applications)
+#   - Update Application Status (PUT /api/applications/:id)
+#   - Delete Job Application (DELETE /api/applications/:id)
 #   - Auth Middleware (protect, protectOptional, adminOnly)
 #   - Database Schema (16 tables)
 #   - Seed Data
-#   - Frontend: LandingPage, Login, Signup, Dashboard, Companies, CompanyDetail, Experiences, ExperienceDetail, SubmitExperience, MockInterview, Roadmap, AuthContext, api.js, App.jsx routing
+#   - Frontend: LandingPage, Login, Signup, Dashboard, Companies, CompanyDetail, Experiences, ExperienceDetail, SubmitExperience, MockInterview, Roadmap, ResumeEvaluator, ApplicationTracker, AuthContext, api.js, App.jsx routing
 #
 # 🔲 PENDING (Frontend pages to build):
-#   - ResumeEvaluator.jsx (PDF upload + AI analysis)
-#   - ApplicationTracker.jsx (Kanban/table of job applications)
+#   - None! All core platform features are fully built and configured.
 #
 # ══════════════════════════════════════════════════════════════════════════════

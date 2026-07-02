@@ -6,8 +6,8 @@ const AuthContext = createContext();
 
 // Create the Provider component
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);       // Stores the currently authenticated user object (id, email, name, role) or null if logged out
+  const [loading, setLoading] = useState(true);  // Boolean flag to show full page spinner on load while verifying the user's JWT token
 
   // Check if user is logged in on page load
   useEffect(() => {
@@ -36,6 +36,14 @@ export function AuthProvider({ children }) {
     return res.data.user;
   };
 
+  // Google Login handler
+  async function googleLogin(idToken) {
+    const res = await api.post('/auth/google', { idToken });
+    localStorage.setItem('token', res.data.token);
+    setUser(res.data.user);
+    return res.data.user;
+  };
+
   // Register handler
   async function register(name, email, password) {
     const res = await api.post('/auth/register', { name, email, password });
@@ -58,7 +66,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile }}>
+    <AuthContext.Provider value={{ user, loading, login, googleLogin, register, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

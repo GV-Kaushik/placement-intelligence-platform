@@ -1,7 +1,10 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-dotenv.config();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 // 1. Read the API key from environment variables
 const apiKey = process.env.GEMINI_API_KEY;
@@ -11,6 +14,8 @@ const isMockMode = !apiKey || apiKey === 'YOUR_GEMINI_API_KEY_HERE';
 
 if (isMockMode) {
   console.warn('⚠️ GEMINI_API_KEY is not configured in backend/.env. Running Mock Interview in MOCK mode.');
+} else {
+  console.log('✅ GEMINI_API_KEY loaded successfully. Running in AI Mode.');
 }
 
 // 3. Initialize the Google Gen AI client only if we are in real mode
@@ -19,7 +24,7 @@ let model;
 if (!isMockMode) {
   genAI = new GoogleGenerativeAI(apiKey);
   model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-2.5-flash',
     systemInstruction: 'You are an elite technical interviewer. You ask sharp, realistic technical and behavioral questions one by one. You do not dump multiple questions at once. You follow up on candidate responses naturally.'
   });
 }
@@ -74,42 +79,46 @@ export async function generateNextQuestion(chatHistory, company, role, difficult
   }
 
   try {
-    // --- FORMAT HISTORY FOR GEMINI ---
-    // Gemini's SDK expects history in a specific format: { role: 'user'|'model', parts: [{ text: '...' }] }
-    // We create an empty array and use a standard 'for' loop to convert our simple database objects.
+    // Format history for Gemini API (must alternate user/model starting with user)
     const formattedHistory = [];
     for (let i = 0; i < chatHistory.length; i++) {
       const msg = chatHistory[i];
-      
-      let mappedRole = 'user';
-      if (msg.role === 'model') {
-        mappedRole = 'model';
+      const mappedRole = msg.role === 'model' ? 'model' : 'user';
+
+      // Skip initial model message(s) because history must start with user
+      if (formattedHistory.length === 0 && mappedRole !== 'user') {
+        continue;
       }
 
-      formattedHistory.push({
-        role: mappedRole,
-        parts: [{ text: msg.text }]
-      });
+      // Merge consecutive messages with the same role to preserve alternation
+      if (formattedHistory.length > 0 && formattedHistory[formattedHistory.length - 1].role === mappedRole) {
+        formattedHistory[formattedHistory.length - 1].parts[0].text += '\n\n' + msg.text;
+      } else {
+        formattedHistory.push({
+          role: mappedRole,
+          parts: [{ text: msg.text }]
+        });
+      }
     }
 
-    // Template literals with backticks (`) and ${} inject variables straight into the text block.
     const prompt = `We are conducting a ${difficulty} difficulty mock interview for the ${role} position at ${company}.
 This is question number ${nextQuestionIndex} of 5.
 Based on the interview transcript, evaluate the candidate's last answer. Then ask the next question.
 Keep your response conversational, concise, and focused on asking ONE single question. Do not ask multiple questions.`;
 
+    // Start chat session with conversation history
     const chat = model.startChat({
       history: formattedHistory,
       generationConfig: {
-        maxOutputTokens: 500,
+        maxOutputTokens: 2000,
       }
     });
 
+    // Send prompt to active chat session
     const result = await chat.sendMessage(prompt);
     return result.response.text();
   } catch (error) {
     console.error('Error generating question from Gemini API:', error.message);
-    // If Gemini fails due to quota or network, fallback to our mock questions
     return getMockQuestion(nextQuestionIndex, company, role, difficulty) + ' (API Fallback)';
   }
 }
@@ -194,7 +203,7 @@ You MUST respond with a valid JSON object matching the following structure:
 Ensure your response is valid JSON. Set response format config if possible. Do not include markdown tags.`;
 
     const evalModel = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       // responseMimeType: "application/json" forces Gemini to output raw, clean JSON format
       // so it can be parsed by JSON.parse() without syntax errors or conversational text.
       generationConfig: { responseMimeType: "application/json" }
@@ -274,7 +283,7 @@ You MUST respond with a valid JSON array matching this structure:
 Ensure your response is valid JSON. Do not include markdown formatting or extra conversational text.`;
 
     const evalModel = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       generationConfig: { responseMimeType: "application/json" }
     });
 
@@ -299,5 +308,72 @@ Ensure your response is valid JSON. Do not include markdown formatting or extra 
       });
     }
     return fallbackRoadmap;
+  }
+}
+
+/**
+ * Analyzes resume text and returns strengths, weaknesses, and suggestions
+ * @param {string} resumeText - Plain text extracted from the PDF
+ */
+export async function analyzeResume(resumeText) {
+  if (isMockMode) {
+    await new Promise(function(resolve) { setTimeout(resolve, 1000); });
+    return {
+      strengths: [
+        'Strong academic background with relevant coursework listed.',
+        'Clear project section with technologies mentioned.',
+        'Good use of action verbs in work experience.'
+      ],
+      weaknesses: [
+        'No quantified achievements (e.g. "Improved performance by 30%").',
+        'Skills section is too generic — missing niche tools.',
+        'No GitHub or LinkedIn profile URL visible.'
+      ],
+      suggestions: [
+        'Add numbers to your project descriptions to show impact.',
+        'Include a personal projects section with live links.',
+        'Tailor the objective statement to the specific company you are targeting.',
+        'Add certifications or online course completions (e.g. NPTEL, Coursera).'
+      ]
+    };
+  }
+
+  try {
+    const prompt = `You are an expert resume reviewer for software engineering placements.
+You will be given the plain text of a student's resume.
+Analyze it and return a JSON object with exactly three arrays:
+1. "strengths": What the resume does well (list of strings)
+2. "weaknesses": Specific problems, gaps, or areas of concern in the resume (list of strings)
+3. "suggestions": Actionable improvement points (list of strings)
+
+Here is the resume plain text:
+---
+${resumeText}
+---
+
+Ensure your response is valid JSON matching the following structure:
+{
+  "strengths": ["string1", "string2"],
+  "weaknesses": ["string1", "string2"],
+  "suggestions": ["string1", "string2"]
+}
+
+Do not wrap the response in markdown blocks or include extra explanation.`;
+
+    const modelObj = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash',
+      generationConfig: { responseMimeType: "application/json" }
+    });
+
+    const response = await modelObj.generateContent(prompt);
+    const resultText = response.response.text();
+    return JSON.parse(resultText);
+  } catch (error) {
+    console.error('Error analyzing resume with Gemini API:', error.message);
+    return {
+      strengths: ['Standard resume formatting'],
+      weaknesses: ['Gemini evaluation was unable to parse fully due to API limit'],
+      suggestions: ['Try re-uploading a cleaner text version of your resume']
+    };
   }
 }

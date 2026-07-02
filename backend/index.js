@@ -1,15 +1,19 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import authRoutes from './routes/authRoutes.js';
 import companyRoutes from './routes/companyRoutes.js';
 import experienceRoutes from './routes/experienceRoutes.js';
 import mockRoutes from './routes/mockRoutes.js';
 import roadmapRoutes from './routes/roadmapRoutes.js';
+import resumeRoutes from './routes/resumeRoutes.js';
+import applicationRoutes from './routes/applicationRoutes.js';
 import pool from './config/db.js';
 
-// Load environment variables
-dotenv.config();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, './.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -48,6 +52,8 @@ app.use('/api/companies', companyRoutes);
 app.use('/api/experiences', experienceRoutes);
 app.use('/api/mock-interviews', mockRoutes);
 app.use('/api/roadmaps', roadmapRoutes);
+app.use('/api/resumes', resumeRoutes);
+app.use('/api/applications', applicationRoutes);
 
 // Catch-all 404 Route
 app.use('*', (req, res) => {

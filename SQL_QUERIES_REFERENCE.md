@@ -504,6 +504,41 @@ RETURNING *;
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# FEATURE 14: AI RESUME EVALUATOR
+# Endpoints:
+#   - POST /api/resumes/upload
+#   - GET /api/resumes
+#   - DELETE /api/resumes/:id
+# File: backend/controllers/resumeController.js
+# ══════════════════════════════════════════════════════════════════════════════
+
+-- STEP 1: Insert new resume evaluation
+INSERT INTO resumes (user_id, file_name, parsed_text, strengths, weaknesses, suggestions)
+VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb)
+RETURNING *;
+-- $1 = User UUID
+-- $2 = File Name (e.g. 'resume.pdf')
+-- $3 = Parsed text extracted from PDF
+-- $4 = JSON string of strengths
+-- $5 = JSON string of weaknesses
+-- $6 = JSON string of suggestions
+
+-- STEP 2: Retrieve all previous resume evaluations for a user
+SELECT id, file_name, strengths, weaknesses, suggestions, created_at
+FROM resumes
+WHERE user_id = $1
+ORDER BY created_at DESC;
+-- $1 = User UUID
+
+-- STEP 3: Delete a specific resume evaluation
+DELETE FROM resumes
+WHERE id = $1 AND user_id = $2
+RETURNING *;
+-- $1 = Resume UUID
+-- $2 = User UUID
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # SCHEMA REFERENCE — TABLE STRUCTURES (Quick Reminder)
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -582,6 +617,18 @@ CREATE TABLE interview_feedbacks (
     target_company VARCHAR(100) NOT NULL,
     days_available INTEGER NOT NULL,
     roadmap_data   JSONB NOT NULL,
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+
+  -- resumes table (1:N relationship with users)
+  CREATE TABLE resumes (
+    id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id        UUID REFERENCES users(id) ON DELETE CASCADE,
+    file_name      VARCHAR(255) NOT NULL,
+    parsed_text    TEXT,
+    strengths      JSONB DEFAULT '[]',
+    weaknesses     JSONB DEFAULT '[]',
+    suggestions    JSONB DEFAULT '[]',
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 

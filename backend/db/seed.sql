@@ -31,30 +31,27 @@ VALUES (
 ) ON CONFLICT (user_id) DO NOTHING;
 
 -- 4. Seed Coding Platform Stats (Option 2 - 1:N Sub-table)
-INSERT INTO coding_platform_stats (id, coding_profile_id, platform_name, username, solved_count, rating) VALUES
+INSERT INTO coding_platform_stats (id, coding_profile_id, platform_name, username, solved_count) VALUES
 (
     'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a31',
     'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
     'LeetCode',
     'senior_lc_profile',
-    420,
-    1920
+    420
 ),
 (
     'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a32',
     'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
     'Codeforces',
     'senior_cf_handle',
-    180,
-    1480
+    180
 ),
 (
     'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
     'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
     'GeeksforGeeks',
     'senior_gfg_profile',
-    290,
-    NULL
+    290
 )
 ON CONFLICT (id) DO NOTHING;
 

@@ -85,40 +85,6 @@ export async function getRoadmaps(req, res) {
 }
 
 /**
- * Retrieve a specific roadmap by its ID
- */
-export async function getRoadmapById(req, res) {
-  const { id } = req.params;
-  const userId = req.user.id;
-
-  try {
-    const selectQuery = `
-      SELECT * FROM roadmaps
-      WHERE id = $1 AND user_id = $2
-    `;
-    const result = await pool.query(selectQuery, [id, userId]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Roadmap not found.'
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      roadmap: result.rows[0]
-    });
-  } catch (error) {
-    console.error('Error retrieving roadmap details:', error.message);
-    res.status(500).json({
-      success: false,
-      message: 'Server error: Failed to fetch roadmap details.'
-    });
-  }
-}
-
-/**
  * Delete a specific roadmap
  */
 export async function deleteRoadmap(req, res) {

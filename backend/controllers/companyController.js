@@ -50,7 +50,7 @@ export const getCompanyById = async (req, res) => {
     );
 
     const experiences = experiencesResult.rows;
-    const totalExperiences = experiences.length;
+    const totalExperiences = experiences.length; // NO of experiences for that specific clicked company from Explore companies page
 
     // Initialize analytics counters
     let avgRounds = 0;
@@ -67,7 +67,7 @@ export const getCompanyById = async (req, res) => {
         if (exp.result === 'Selected') {
           successCount++;
         }
-
+        // exp.rounds, exp.questions is an array of objects
         // Parse rounds data
         let roundsList = [];
         try {
@@ -86,7 +86,7 @@ export const getCompanyById = async (req, res) => {
           qList = [];
         }
 
-        if (Array.isArray(qList)) {
+        if (Array.isArray(qList)) {//checks if arra or not
           for (let j = 0; j < qList.length; j++) {
             const q = qList[j];
             if (q.topic && q.topic.trim() !== '') {
@@ -104,8 +104,8 @@ export const getCompanyById = async (req, res) => {
     const successRate = totalExperiences > 0 ? Math.round((successCount / totalExperiences) * 100) : 0;
 
     // Convert topic counts to sorted percentages
-    const mostAskedTopics = [];
-    const entries = Object.entries(topicCounts);
+    const mostAskedTopics = []; // Array of objects
+    const entries = Object.entries(topicCounts);// convert object to array, for indexing
     for (let i = 0; i < entries.length; i++) {
       const topic = entries[i][0];
       const count = entries[i][1];

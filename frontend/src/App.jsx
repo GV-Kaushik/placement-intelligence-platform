@@ -11,6 +11,9 @@ import ExperienceDetail from './pages/ExperienceDetail';
 import SubmitExperience from './pages/SubmitExperience';
 import MockInterview from './pages/MockInterview';
 import Roadmap from './pages/Roadmap';
+import ResumeEvaluator from './pages/ResumeEvaluator';
+import ApplicationTracker from './pages/ApplicationTracker';
+import Profile from './pages/Profile';
 import { useAuth } from './context/AuthContext';
 
 function App() {
@@ -34,48 +37,64 @@ function App() {
         {/* Auth Routes: Redirect to dashboard if already logged in */}
         <Route 
           path="/login" 
-          element={user ? <Navigate to="/dashboard" /> : <Login />} 
+          element={user ? <Navigate to="/dashboard" replace /> : <Login />} 
         />
         <Route 
           path="/signup" 
-          element={user ? <Navigate to="/dashboard" /> : <Signup />} 
+          element={user ? <Navigate to="/dashboard" replace /> : <Signup />} 
         />
 
         {/* Private Protected Route: Redirect to login if guest */}
         <Route 
           path="/dashboard" 
-          element={user ? <Dashboard /> : <Navigate to="/login" />} 
+          element={user ? <Dashboard /> : <Navigate to="/login" replace />} 
         />
         <Route 
           path="/companies" 
-          element={user ? <Companies /> : <Navigate to="/login" />} 
+          element={user ? <Companies /> : <Navigate to="/login" replace />} 
         />
         <Route 
           path="/companies/:id" 
-          element={user ? <CompanyDetail /> : <Navigate to="/login" />} 
+          element={user ? <CompanyDetail /> : <Navigate to="/login" replace />} 
         />
         <Route 
           path="/experiences" 
-          element={user ? <Experiences /> : <Navigate to="/login" />} 
+          element={user ? <Experiences /> : <Navigate to="/login" replace />} 
         />
         <Route 
           path="/experiences/:id" 
-          element={user ? <ExperienceDetail /> : <Navigate to="/login" />} 
+          element={user ? <ExperienceDetail /> : <Navigate to="/login" replace />} 
         />
         <Route 
           path="/submit-experience" 
-          element={user ? <SubmitExperience /> : <Navigate to="/login" />} 
+          element={user ? <SubmitExperience /> : <Navigate to="/login" replace />} 
         />
         <Route 
           path="/mock-interview" 
-          element={user ? <MockInterview /> : <Navigate to="/login" />} 
+          element={user ? <MockInterview /> : <Navigate to="/login" replace />} 
+        />
+        <Route 
+          path="/mock-interview/:id" 
+          element={user ? <MockInterview /> : <Navigate to="/login" replace />} 
         />
         <Route 
           path="/roadmaps" 
-          element={user ? <Roadmap /> : <Navigate to="/login" />} 
+          element={user ? <Roadmap /> : <Navigate to="/login" replace />} 
+        />
+        <Route 
+          path="/resume-evaluator" 
+          element={user ? <ResumeEvaluator /> : <Navigate to="/login" replace />} 
+        />
+        <Route 
+          path="/application-tracker" 
+          element={user ? <ApplicationTracker /> : <Navigate to="/login" replace />} 
+        />
+        <Route 
+          path="/profile" 
+          element={user ? <Profile /> : <Navigate to="/login" replace />} 
         />
         {/* Catch-all Redirect */}
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
